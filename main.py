@@ -69,7 +69,7 @@ truck1 = truck.Truck(16, 18, None, [1, 13, 14, 15, 16, 20, 29, 30, 31, 34, 37, 4
                      datetime.timedelta(hours=8))
 
 # Create truck object truck2
-truck2 = truck.Truck(16, 18, None, [3, 6, 12, 17, 18, 19, 21, 22, 23, 24, 26, 27, 35, 36, 38, 39], 0.0,
+truck2 = truck.Truck(16, 18, None, [3, 12, 17, 18, 19, 21, 22, 23, 24, 26, 27, 35, 36, 38, 39], 0.0,
                      "4001 South 700 East", datetime.timedelta(hours=10, minutes=20))
 
 # Create truck object truck3
@@ -136,33 +136,86 @@ class Main:
     # If the user doesn't type "leave" the program will ask for a specific time in regard to checking packages
     if text == "begin":
         try:
-            # The user will be asked to enter a specific time
-            user_time = input("Please enter a time to check status of package(s). Use the following format, HH:MM:SS\n")
-            (h, m, s) = user_time.split(":")
-            convert_timedelta = datetime.timedelta(hours=int(h), minutes=int(m), seconds=int(s))
-            # The user will be asked if they want to see the status of all packages or only one
-            second_input = input("To view the status of an individual package please type 'single'. To view the status of all"
-                                 " packages please type 'all'.\n")
-            # If the user enters "single" the program will ask for one package ID
-            if second_input == "single":
-                try:
-                    # The user will be asked to input a package ID. Invalid entry will cause the program to quit
-                    single_input = input("Enter the numeric package ID\n")
-                    package = package_hash_table.lookup(int(single_input))
-                    package.update_status(convert_timedelta)
-                    print(str(package))
-                except ValueError:
-                    print("Entry invalid. Closing program.")
-                    exit()
-            # If the user types "all" the program will display all package information at once
-            elif second_input == "all":
-                try:
-                    for package_id in range(1, 41):
-                        package = package_hash_table.lookup(package_id)
+            user_mode = input("To status of packages at a specific time, type 'time'. To check when packages were loaded by truck, type 'truck'.\n")
+            if user_mode == "time":
+                # The user will be asked to enter a specific time
+                user_time = input("Please enter a time to check status of package(s). Use the following format, HH:MM\n")
+                (h, m) = user_time.split(":")
+                convert_timedelta = datetime.timedelta(hours=int(h), minutes=int(m))
+                # The user will be asked if they want to see the status of all packages or only one
+                second_input = input("To view the status of an individual package please type 'single'. To view the status of all"
+                                    " packages please type 'all'.\n")
+                # If the user enters "single" the program will ask for one package ID
+                if second_input == "single":
+                    try:
+                        # The user will be asked to input a package ID. Invalid entry will cause the program to quit
+                        single_input = input("Enter the numeric package ID\n")
+                        package = package_hash_table.lookup(int(single_input))
                         package.update_status(convert_timedelta)
                         print(str(package))
-                except ValueError:
-                    print("Entry invalid. Closing program.")
+                    except ValueError:
+                        print("Entry invalid. Closing program.")
+                        exit()
+                # If the user types "all" the program will display all package information at once
+                elif second_input == "all":
+                    try:
+                        for package_id in range(1, 41):
+                            package = package_hash_table.lookup(package_id)
+                            package.update_status(convert_timedelta)
+                            print(str(package))
+                    except ValueError:
+                        print("Entry invalid. Closing program.")
+                        exit()
+                else:
+                    exit()
+            elif user_mode == "truck":
+                # The user will be asked to enter a specific start and end time
+                start_time = input("Please enter the time you would like to start at. Use the following format, HH:MM\n")
+                (h, m) = start_time.split(":")
+                start_time = datetime.timedelta(hours=int(h), minutes=int(m))
+                end_time = input("Please enter the time you would like to end at. Use the following format, HH:MM\n")
+                (h, m) = end_time.split(":")
+                end_time = datetime.timedelta(hours=int(h), minutes=int(m))
+                # The user will be asked which truck they would like to see info about
+                second_input = input("Which truck would you like to view? '1', '2', '3', 'all'.\n")
+                # Displays info about truck 1 at given time
+                if second_input == "1":
+                    print("Packages loaded in truck 1 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck1.packages:
+                            print(str(package))
+                # Displays info about truck 2 at given time
+                elif second_input == "2":
+                    print("Packages loaded in truck 2 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck2.packages:
+                            print(str(package))
+                # Displays info about truck 3 at given time
+                elif second_input == "3":
+                    print("Packages loaded in truck 3 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck3.packages:
+                            print(str(package))
+                elif second_input == "all":
+                    print("Packages loaded in truck 1 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck1.packages:
+                            print(str(package))
+                    print("Packages loaded in truck 2 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck2.packages:
+                            print(str(package))
+                    print("Packages loaded in truck 3 between time " + str(start_time) + " and " + str(end_time) + ":")
+                    for package_id in range(1, 41):
+                        package = package_hash_table.lookup(package_id)
+                        if package.departure_time >= start_time and package.departure_time <= end_time and package.id in truck3.packages:
+                            print(str(package))
+                else:
                     exit()
             else:
                 exit()
